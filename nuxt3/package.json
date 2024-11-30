@@ -19,9 +19,12 @@
     "@date-io/dayjs": "^3.0.0",
     "@iconify/vue": "^4.1.2",
     "@nuxtjs/tailwindcss": "^6.12.2",
+    "axios": "^1.7.8",
     "dayjs": "^1.11.13",
+    "firebase": "^11.0.2",
     "sass": "^1.81.0",
     "vite-plugin-vuetify": "^2.0.4",
+    "vuefire": "^3.2.0",
     "vuetify": "^3.7.4"
   }
 }

@@ -99,4 +99,11 @@ export const productItems = [
     cover:
       "https://i.pinimg.com/736x/4f/c4/b7/4fc4b7c0a8aa455a6b4a5dc620eb44af.jpg",
   }),
+
+  new Product({
+    name: "Pinocchio 964",
+    amount: 100,
+    cover:
+      "https://i.pinimg.com/736x/6c/0c/32/6c0c322409e285164b49c8933bbec97a.jpg",
+  }),
 ];
