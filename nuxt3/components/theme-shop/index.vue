@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-black text-white">
+  <div class="bg-black text-white font-sans">
     <!-- Top nav -->
     <div class="bg-black">
       <div class="max-w-screen-xl mx-auto flex items-center gap-2 py-2">
@@ -12,71 +12,94 @@
 
         <div class="grow"></div>
 
-        <a href="javascript:void(0);">
+        <a href="tel:+5531995271426">
           <v-icon
             size="20"
             icon="material-symbols:help"
-          />
-        </a>
-        <a href="javascript:void(0);">
-          <v-icon
-            size="20"
-            icon="material-symbols:person-rounded"
-          />
-        </a>
-        <a href="javascript:void(0);">
-          <v-icon
-            size="20"
-            icon="material-symbols:shopping-bag"
           />
         </a>
       </div>
     </div>
 
     <!-- Header -->
-    <header class="relative bg-slate-900 py-4">
-      <div class="max-w-screen-xl mx-auto flex items-center sticky top-0">
+    <header
+      class="bg-slate-900 py-4 block sticky top-0 z-10 divide-y divide-1 divide-gray-800"
+      @mouseleave="nav.setSubmenu(null)"
+    >
+      <div
+        class="max-w-screen-xl mx-auto flex items-center gap-3 border-1 border-b border-white"
+      >
         <div class="flex items-center">
-          <a
-            href="#home"
-            class="block lg:inline-block text-md font-bold text-gray-300 sm:hover:border-indigo-400 hover:text-red-800 mx-2 p-1"
-          >
-            HOME
-          </a>
-          <a
-            href="#home"
-            class="block lg:inline-block text-md font-bold text-gray-300 sm:hover:border-indigo-400 hover:text-red-800 mx-2 p-1"
-          >
-            ROAD & STORY
-          </a>
-          <a
-            href="#home"
-            class="block lg:inline-block text-md font-bold text-gray-300 sm:hover:border-indigo-400 hover:text-red-800 mx-2 p-1"
-          >
-            ACCOMMODATION
-          </a>
-          <a
-            href="#home"
-            class="block lg:inline-block text-md font-bold text-gray-300 sm:hover:border-indigo-400 hover:text-red-800 mx-2 p-1"
-          >
-            TOURS
-          </a>
-          <a
-            href="#home"
-            class="block lg:inline-block text-md font-bold text-gray-300 sm:hover:border-indigo-400 hover:text-red-800 mx-2 p-1"
-          >
-            CONTACT US
-          </a>
-          <a
-            href="#home"
-            class="block lg:inline-block text-md font-bold text-gray-300 sm:hover:border-indigo-400 hover:text-red-800 mx-2 p-1"
-          >
-            COMING SOON
-          </a>
+          <template v-for="o in nav.items">
+            <nuxt-link
+              v-bind="o"
+              @mouseenter="nav.setSubmenu(o)"
+              class="block lg:inline-block text-md font-bold text-gray-300 text-uppercase sm:hover:border-indigo-400 hover:text-red-800 mx-2 p-1"
+            >
+              HOME
+            </nuxt-link>
+          </template>
         </div>
         <div class="grow"></div>
         <v-icon icon="material-symbols:search" />
+        <v-icon icon="material-symbols:help" />
+        <v-icon icon="material-symbols:person-rounded" />
+        <v-icon icon="material-symbols:shopping-bag" />
       </div>
+
+      <!-- Megamenu -->
+      <v-fade-transition>
+        <div
+          v-if="nav.submenu"
+          class="absolute w-full bg-slate-900"
+          style="top: 100%"
+        >
+          <div class="max-w-screen-xl mx-auto">
+            <div class="grid grid-cols-5 gap-4 sm:p-4">
+              <div class="col-span-5 text-uppercase font-black text-lg">
+                {{ nav.submenu.text }}
+              </div>
+              <div class="col-span-4">
+                <div class="grid grid-cols-4 gap-4">
+                  <template v-for="o in nav.submenu.children">
+                    <div>
+                      <div class="font-bold text-md">{{ o.text }}</div>
+                      <ul>
+                        <template v-for="oo in o.children">
+                          <li>
+                            <nuxt-link
+                              v-bind="oo"
+                              class="font-sm block py-1 hover:underline text-slate-400"
+                            >
+                              {{ oo.text }}
+                            </nuxt-link>
+                          </li>
+                        </template>
+                      </ul>
+                    </div>
+                  </template>
+                </div>
+              </div>
+              <div class="col-span-1">
+                <img
+                  :src="nav.submenu.image"
+                  alt=""
+                  class="w-full rounded"
+                />
+              </div>
+            </div>
+          </div>
+
+          <!-- <div class="bg-black">
+            <div class="max-w-screen-xl mx-auto flex items-center gap-3 py-3">
+              <div>Item</div>
+              <div>Item</div>
+              <div>Item</div>
+              <div>Item</div>
+            </div>
+          </div> -->
+        </div>
+      </v-fade-transition>
     </header>
 
     <!-- Products -->
@@ -607,6 +630,176 @@ const product = reactive({
   tags: productTags,
   items: productItems,
 });
+
+const nav = reactive({
+  submenu: null,
+  setSubmenu(submenu) {
+    nav.submenu = submenu;
+  },
+  items: [
+    {
+      text: "Masculino",
+      to: "/",
+      children: [
+        {
+          text: "Camisas",
+          to: "/",
+          children: [
+            { text: "Malha", to: "/", children: [] },
+            { text: "Long Body", to: "/", children: [] },
+          ],
+        },
+        {
+          text: "Moletons",
+          to: "/",
+          children: [
+            { text: "Zíper", to: "/", children: [] },
+            { text: "Fechado", to: "/", children: [] },
+          ],
+        },
+        {
+          text: "Bonés",
+          to: "/",
+          children: [
+            { text: "Raso", to: "/", children: [] },
+            { text: "Trucker", to: "/", children: [] },
+          ],
+        },
+      ],
+    },
+    {
+      text: "Feminino",
+      to: "/",
+      children: [
+        {
+          text: "Camisas",
+          to: "/",
+          children: [
+            { text: "Malha", to: "/", children: [] },
+            { text: "Long Body", to: "/", children: [] },
+          ],
+        },
+        {
+          text: "Moletons",
+          to: "/",
+          children: [
+            { text: "Zíper", to: "/", children: [] },
+            { text: "Fechado", to: "/", children: [] },
+          ],
+        },
+        {
+          text: "Bonés",
+          to: "/",
+          children: [
+            { text: "Raso", to: "/", children: [] },
+            { text: "Trucker", to: "/", children: [] },
+          ],
+        },
+      ],
+    },
+    {
+      text: "Acessórios",
+      to: "/",
+      children: [
+        {
+          text: "Camisas",
+          to: "/",
+          children: [
+            { text: "Cinema", to: "/", children: [] },
+            { text: "Quadrinhos", to: "/", children: [] },
+          ],
+        },
+        { text: "Moletons", to: "/", children: [] },
+        { text: "Bonés", to: "/", children: [] },
+      ],
+    },
+    {
+      text: "Produtos",
+      to: "/",
+      image:
+        "https://i.pinimg.com/736x/99/23/0b/99230bde035ef2d41042935e2e3ef9b0.jpg",
+      children: [
+        {
+          text: "Categorias",
+          to: "/",
+          children: [
+            { text: "Cinema", to: "/", children: [] },
+            { text: "Quadrinhos", to: "/", children: [] },
+            { text: "Música", to: "/", children: [] },
+          ],
+        },
+        {
+          text: "Feminino",
+          to: "/",
+          children: [
+            { text: "Vestidos", to: "/", children: [] },
+            { text: "Camisas", to: "/", children: [] },
+            { text: "Moletons", to: "/", children: [] },
+            { text: "Calças", to: "/", children: [] },
+            { text: "Canecos", to: "/", children: [] },
+            { text: "Almofadas", to: "/", children: [] },
+            { text: "Acessórios", to: "/", children: [] },
+          ],
+        },
+        {
+          text: "Masculino",
+          to: "/",
+          children: [
+            { text: "Camisas", to: "/", children: [] },
+            { text: "Moletons", to: "/", children: [] },
+            { text: "Calças", to: "/", children: [] },
+            { text: "Canecos", to: "/", children: [] },
+            { text: "Almofadas", to: "/", children: [] },
+            { text: "Acessórios", to: "/", children: [] },
+          ],
+        },
+        {
+          text: "Infantil",
+          to: "/",
+          children: [
+            { text: "Brinquedos", to: "/", children: [] },
+            { text: "Colecionáveis", to: "/", children: [] },
+            { text: "Camisas", to: "/", children: [] },
+            { text: "Bodies", to: "/", children: [] },
+            { text: "Babadores", to: "/", children: [] },
+          ],
+        },
+      ],
+    },
+
+    {
+      text: "Suporte",
+      to: "/",
+      image:
+        "https://i.pinimg.com/736x/17/64/bc/1764bc67db0990ed646e2c43943af8ef.jpg",
+      children: [
+        {
+          text: "Contato",
+          to: "/",
+          children: [
+            { text: "Fale Conosco", to: "/", children: [] },
+            { text: "Trabalhe Conosco", to: "/", children: [] },
+          ],
+        },
+        {
+          text: "Políticas",
+          to: "/",
+          children: [
+            { text: "Troca", to: "/", children: [] },
+            { text: "Privacidade", to: "/", children: [] },
+          ],
+        },
+        {
+          text: "Promoções",
+          to: "/",
+          children: [{ text: "Cupons", to: "/", children: [] }],
+        },
+      ],
+    },
+  ],
+});
+
+nav.setSubmenu(nav.items[0]);
 </script>
 
 <style>
