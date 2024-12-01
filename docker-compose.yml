@@ -9,6 +9,7 @@ services:
     image: node:18.16.0
     working_dir: /app
     command: bash -c "yarn install && yarn dev"
+    env_file: ./nuxt3/.env
     environment:
       NUXT3_PORT: 3000
     ports:
