@@ -1,83 +1,126 @@
 <template>
   <nuxt-layout name="admin">
     <v-container>
-      <div class="d-flex justify-end">
-        <app-actions
-          :actions="
-            () => [
-              {
-                icon: 'mdi-plus',
-                color: 'success',
-                text: 'Edit',
-                onClick() {
-                  product.openEditor({});
-                },
-              },
-            ]
-          "
-        />
-      </div>
-      <v-table>
+      <div class="d-flex justify-end"></div>
+      <v-table class="border">
         <colgroup>
           <col width="*" />
-          <col width="200px" />
+          <col width="50px" />
+          <col width="150px" />
           <col width="0" />
         </colgroup>
+        <thead>
+          <tr>
+            <th>Produto</th>
+            <th>Ativo</th>
+            <th>Preço</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
         <tbody>
-          <template v-for="o in product.list.data">
+          <template v-for="o in product.search.data">
             <tr>
               <td>{{ o.name }}</td>
+              <td>
+                <v-chip
+                  v-model="o.active"
+                  color="success"
+                  >Ativo</v-chip
+                >
+              </td>
               <td>{{ o.amount }}</td>
-              <td class="pa-0">
+              <td class="pa-1">
                 <app-actions
                   :actions="
                     () => [
                       {
-                        icon: 'mdi-pen',
+                        icon:
+                          product.delete.busy && product.delete.data.id == o.id
+                            ? 'eos-icons:loading'
+                            : 'mdi-pen',
                         color: 'primary',
                         text: 'Edit',
                         onClick() {
-                          product.openEditor(o);
+                          productDialog.set(o);
                         },
                       },
-                      { icon: 'mdi-delete', color: 'error', text: 'Delete' },
+                      {
+                        icon: 'mdi-delete',
+                        color: 'error',
+                        text: 'Delete',
+                        onClick() {
+                          product.delete.submit(o);
+                        },
+                      },
                     ]
                   "
                 />
               </td>
             </tr>
           </template>
+          <tr>
+            <td
+              class="pa-1"
+              colspan="4"
+            >
+              <app-actions
+                class="justify-end"
+                :actions="
+                  () => [
+                    {
+                      icon: 'mdi-plus',
+                      color: 'success',
+                      text: 'Edit',
+                      onClick() {
+                        productDialog.set({});
+                      },
+                    },
+                  ]
+                "
+              />
+            </td>
+          </tr>
         </tbody>
       </v-table>
-      <pre>product.list: {{ product.list }}</pre>
     </v-container>
 
     <v-dialog
-      v-model="product.dialog"
+      v-model="productDialog.value"
       max-width="700"
       scrollable
     >
-      <v-form @submit.prevent="product.edit.save()">
+      <v-form @submit.prevent="product.save.submit()">
         <v-card>
+          <v-card-title>Editar item</v-card-title>
           <v-card-text>
             <v-text-field
               label="Nome"
-              v-model="product.edit.name"
+              v-model="product.save.data.name"
+            />
+            <v-text-field
+              label="SKU"
+              v-model="product.save.data.sku"
+            />
+            <v-checkbox
+              :label="product.save.data.active ? 'Ativo' : 'Inativo'"
+              v-model="product.save.data.active"
+              :true-value="true"
+              :false-value="null"
             />
             <v-text-field
               label="Valor"
-              v-model.number="product.edit.amount"
+              v-model.number="product.save.data.amount"
               type="number"
             />
-            <pre>product.edit: {{ product.edit }}</pre>
-            <div class="d-flex justify-end">
-              <v-btn
-                text="Salvar"
-                color="primary"
-                type="submit"
-              />
-            </div>
           </v-card-text>
+          <v-card-actions>
+            <v-btn
+              text="Salvar"
+              class="bg-primary"
+              type="submit"
+              :loading="product.save.busy"
+            />
+          </v-card-actions>
         </v-card>
       </v-form>
     </v-dialog>
@@ -86,21 +129,24 @@
 
 <script setup>
 import ShopProduct from "~/models/ShopProduct.js";
+const product = reactive(new ShopProduct());
+product.search.submit();
 
-const product = reactive({
-  edit: new ShopProduct(),
-  list: ShopProduct.search(),
-  false: true,
-  openEditor(data) {
-    product.edit.fill(data || {});
-    product.dialog = !!data;
+product.on("saved", () => {
+  product.search.submit();
+  productDialog.set(null);
+});
+
+product.on("deleted", () => {
+  product.search.submit();
+  productDialog.set(null);
+});
+
+const productDialog = reactive({
+  value: false,
+  set(data = {}) {
+    product.save.set(data || {});
+    productDialog.value = !!data;
   },
 });
-
-product.edit.on("saved", () => {
-  product.list.submit();
-  product.openEditor(null);
-});
-
-product.list.submit();
 </script>

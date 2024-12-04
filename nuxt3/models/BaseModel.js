@@ -4,51 +4,91 @@ import * as fireFirestore from "firebase/firestore";
 import { useFirestore } from "vuefire";
 import dayjs from "dayjs";
 
-let events = [];
-
 export default class {
-  constructor(data = {}) {
-    data = {
-      ...this.getDefaults(),
-      ...data,
-    };
-    for (let attr in data) this[attr] = data[attr];
+  constructor() {
+    this.save = new Save(this);
+    this.search = new Search(this);
+    this.delete = new Delete(this);
+    this.upload = new Upload(this);
+    this.events = [];
   }
 
-  defaults(data = {}) {
-    return { id: null, ...data };
+  collection() {
+    return "app";
   }
 
-  fill(data = {}) {
-    Object.entries(this.getDefaults()).map(([attr, value]) => {
-      this[attr] = data[attr] ?? value;
-    });
+  defaults() {
+    return {};
   }
 
   getDefaults() {
     return {
       id: null,
+      ...this.defaults(),
       created_at: null,
       updated_at: null,
-      ...this.defaults(),
     };
   }
 
-  collection() {
-    return null;
-  }
-
   toJson() {
-    let data = this.getDefaults();
-    for (let attr in data) {
-      data[attr] = this[attr];
-    }
-    return JSON.parse(JSON.stringify(data));
+    let data = {};
+    Object.entries(this.getDefaults()).map(([name, value]) => {
+      data[name] = value ?? null;
+    });
+    return data;
   }
 
-  async save() {
+  searchParams() {
+    return {};
+  }
+
+  getSearchParams() {
+    return {
+      limit: 20,
+      order: "desc",
+      order_by: "updated_at",
+      ...this.searchParams(),
+    };
+  }
+
+  on(name, call) {
+    this.events.push({ name, call });
+  }
+
+  dispatch(evt, ...args) {
+    this.events.map(({ name, call }) => {
+      if (name != evt) return;
+      call(...args);
+    });
+  }
+}
+
+class Save {
+  constructor(parent) {
+    this.busy = false;
+    this.data = parent.toJson();
+    this.on = (...args) => parent.on(...args);
+    this.dispatch = (...args) => parent.dispatch(...args);
+    this.toJson = () => parent.toJson();
+    this.collection = () => parent.collection();
+  }
+
+  set(data = {}) {
+    this.data = { ...this.toJson(), ...data };
+    return this;
+  }
+
+  fill(data = {}) {
+    for (let attr in data) {
+      this[attr] = data[attr];
+    }
+    return this;
+  }
+
+  async submit() {
+    let data = this.data;
     const db = useFirestore();
-    let data = this.toJson();
+    this.busy = true;
 
     if (data.id) {
       data.updated_at = dayjs().format();
@@ -65,26 +105,7 @@ export default class {
       this.dispatch("saved", data);
     }
 
-    this.fill(data);
-  }
-
-  onSave() {
-    //
-  }
-
-  on(name, call) {
-    return events.push({ name, call });
-  }
-
-  dispatch(evt, ...args) {
-    events.map(({ name, call }) => {
-      if (name != evt) return;
-      call(...args);
-    });
-  }
-
-  static search() {
-    return new Search(new this());
+    this.busy = false;
   }
 }
 
@@ -92,19 +113,23 @@ class Search {
   constructor(parent) {
     this.busy = false;
     this.collection = parent.collection();
-    this.params = { limit: 20 };
+    this.params = parent.getSearchParams();
     this.data = [];
+    this.on = (...args) => parent.on(...args);
+    this.dispatch = (...args) => parent.dispatch(...args);
   }
 
   async submit() {
     this.busy = true;
     const db = useFirestore();
     const collection = fireFirestore.collection(db, this.collection);
+
     let queryParams = [
       collection,
-      fireFirestore.orderBy("updated_at", "desc"),
+      fireFirestore.orderBy(this.params.order_by, this.params.order),
       fireFirestore.limit(this.params.limit),
     ];
+
     const first = fireFirestore.query(...queryParams);
     const docsRef = await fireFirestore.getDocs(first);
 
@@ -116,5 +141,34 @@ class Search {
     });
 
     this.busy = false;
+  }
+}
+
+class Delete {
+  constructor(parent) {
+    this.busy = false;
+    this.collection = () => parent.collection();
+    this.data = parent.toJson();
+    this.on = (...args) => parent.on(...args);
+    this.dispatch = (...args) => parent.dispatch(...args);
+  }
+
+  async submit(data) {
+    this.busy = true;
+    this.data = data;
+    const db = useFirestore();
+    const docRef = fireFirestore.doc(db, this.collection(), data.id);
+    await fireFirestore.deleteDoc(docRef);
+    this.dispatch("deleted", data);
+    this.busy = false;
+  }
+}
+
+class Upload {
+  constructor(parent) {
+    this.busy = false;
+    this.collection = () => parent.collection();
+    this.on = (...args) => parent.on(...args);
+    this.dispatch = (...args) => parent.dispatch(...args);
   }
 }
