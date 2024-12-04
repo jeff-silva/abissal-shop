@@ -1,54 +1,56 @@
 <template>
   <nuxt-layout name="admin">
-    <div class="d-flex justify-end">
-      <app-actions
-        :actions="
-          () => [
-            {
-              icon: 'mdi-plus',
-              color: 'success',
-              text: 'Edit',
-              onClick() {
-                product.openEditor({});
+    <v-container>
+      <div class="d-flex justify-end">
+        <app-actions
+          :actions="
+            () => [
+              {
+                icon: 'mdi-plus',
+                color: 'success',
+                text: 'Edit',
+                onClick() {
+                  product.openEditor({});
+                },
               },
-            },
-          ]
-        "
-      />
-    </div>
-    <v-table>
-      <colgroup>
-        <col width="*" />
-        <col width="200px" />
-        <col width="0" />
-      </colgroup>
-      <tbody>
-        <template v-for="o in product.list.data">
-          <tr>
-            <td>{{ o.name }}</td>
-            <td>{{ o.amount }}</td>
-            <td class="pa-0">
-              <app-actions
-                :actions="
-                  () => [
-                    {
-                      icon: 'mdi-pen',
-                      color: 'primary',
-                      text: 'Edit',
-                      onClick() {
-                        product.openEditor(o);
+            ]
+          "
+        />
+      </div>
+      <v-table>
+        <colgroup>
+          <col width="*" />
+          <col width="200px" />
+          <col width="0" />
+        </colgroup>
+        <tbody>
+          <template v-for="o in product.list.data">
+            <tr>
+              <td>{{ o.name }}</td>
+              <td>{{ o.amount }}</td>
+              <td class="pa-0">
+                <app-actions
+                  :actions="
+                    () => [
+                      {
+                        icon: 'mdi-pen',
+                        color: 'primary',
+                        text: 'Edit',
+                        onClick() {
+                          product.openEditor(o);
+                        },
                       },
-                    },
-                    { icon: 'mdi-delete', color: 'error', text: 'Delete' },
-                  ]
-                "
-              />
-            </td>
-          </tr>
-        </template>
-      </tbody>
-    </v-table>
-    <pre>product.list: {{ product.list }}</pre>
+                      { icon: 'mdi-delete', color: 'error', text: 'Delete' },
+                    ]
+                  "
+                />
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </v-table>
+      <pre>product.list: {{ product.list }}</pre>
+    </v-container>
 
     <v-dialog
       v-model="product.dialog"
@@ -67,6 +69,7 @@
               v-model.number="product.edit.amount"
               type="number"
             />
+            <pre>product.edit: {{ product.edit }}</pre>
             <div class="d-flex justify-end">
               <v-btn
                 text="Salvar"
@@ -74,7 +77,6 @@
                 type="submit"
               />
             </div>
-            <div>Produtos</div>
           </v-card-text>
         </v-card>
       </v-form>
@@ -90,9 +92,14 @@ const product = reactive({
   list: ShopProduct.search(),
   false: true,
   openEditor(data) {
-    product.edit.fill(data);
-    product.dialog = true;
+    product.edit.fill(data || {});
+    product.dialog = !!data;
   },
+});
+
+product.edit.on("saved", () => {
+  product.list.submit();
+  product.openEditor(null);
 });
 
 product.list.submit();

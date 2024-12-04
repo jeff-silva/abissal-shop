@@ -4,6 +4,8 @@ import * as fireFirestore from "firebase/firestore";
 import { useFirestore } from "vuefire";
 import dayjs from "dayjs";
 
+let events = [];
+
 export default class {
   constructor(data = {}) {
     data = {
@@ -46,26 +48,39 @@ export default class {
 
   async save() {
     const db = useFirestore();
-    const collectRef = fireFirestore.collection(db, this.collection());
     let data = this.toJson();
-    console.log(data);
 
     if (data.id) {
-      const docRef = await fireFirestore.doc(db, collectRef, data.id);
-      console.log(docRef);
-      // data.updated_at = dayjs().format();
-      // const dataRef = await fireFirestore.updateDoc(docRef, data);
+      data.updated_at = dayjs().format();
+      const docRef = fireFirestore.doc(db, this.collection(), data.id);
+      fireFirestore.setDoc(docRef, data, { merge: true });
+      this.dispatch("updated", data);
+      this.dispatch("saved", data);
     } else {
-      // data.created_at = data.updated_at = dayjs().format();
-      // const dataRef = await fireFirestore.addDoc(collection, data);
-      // data.id = dataRef.id;
+      data.created_at = data.updated_at = dayjs().format();
+      const collectRef = fireFirestore.collection(db, this.collection());
+      const docRef = await fireFirestore.addDoc(collectRef, data);
+      data.id = docRef.id;
+      this.dispatch("created", data);
+      this.dispatch("saved", data);
     }
 
-    // this.fill(data);
+    this.fill(data);
   }
 
   onSave() {
     //
+  }
+
+  on(name, call) {
+    return events.push({ name, call });
+  }
+
+  dispatch(evt, ...args) {
+    events.map(({ name, call }) => {
+      if (name != evt) return;
+      call(...args);
+    });
   }
 
   static search() {
@@ -87,16 +102,18 @@ class Search {
     const collection = fireFirestore.collection(db, this.collection);
     let queryParams = [
       collection,
-      fireFirestore.orderBy("updatedAt", "desc"),
-      // fireFirestore.limit(this.params.limit),
+      fireFirestore.orderBy("updated_at", "desc"),
+      fireFirestore.limit(this.params.limit),
     ];
     const first = fireFirestore.query(...queryParams);
     const docsRef = await fireFirestore.getDocs(first);
 
-    this.data = docsRef.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    this.data = docsRef.docs.map((doc) => {
+      return {
+        ...doc.data(),
+        id: doc.id,
+      };
+    });
 
     this.busy = false;
   }
