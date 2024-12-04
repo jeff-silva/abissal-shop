@@ -4,6 +4,7 @@
       <div class="d-flex justify-end"></div>
       <v-table class="border">
         <colgroup>
+          <col width="50px" />
           <col width="*" />
           <col width="50px" />
           <col width="150px" />
@@ -11,6 +12,7 @@
         </colgroup>
         <thead>
           <tr>
+            <th></th>
             <th>Produto</th>
             <th>Ativo</th>
             <th>Preço</th>
@@ -20,6 +22,14 @@
         <tbody>
           <template v-for="o in product.search.data">
             <tr>
+              <td class="pa-0">
+                <img
+                  v-if="o.thumbnail"
+                  :src="o.thumbnail.url"
+                  alt=""
+                  style="width: 100%; height: 50px; object-fit: cover"
+                />
+              </td>
               <td>{{ o.name }}</td>
               <td>
                 <v-chip
@@ -28,7 +38,15 @@
                   >Ativo</v-chip
                 >
               </td>
-              <td>{{ o.amount }}</td>
+              <td>
+                <v-money
+                  v-model="o.amount"
+                  hide-details
+                  density="compact"
+                  variant="plain"
+                  readonly
+                />
+              </td>
               <td class="pa-1">
                 <app-actions
                   :actions="
@@ -107,11 +125,38 @@
               :true-value="true"
               :false-value="null"
             />
-            <v-text-field
+            <v-money
               label="Valor"
               v-model.number="product.save.data.amount"
-              type="number"
             />
+            <v-file-input
+              v-if="!product.save.data.thumbnail"
+              label="Thumbnail"
+              :loading="product.storage.busy"
+              @update:model-value="
+                async (file) => {
+                  product.save.data.thumbnail = await product.storage.upload(
+                    file
+                  );
+                }
+              "
+            />
+            <img
+              v-if="
+                product.save.data.thumbnail &&
+                product.save.data.thumbnail.mime.startsWith('image/')
+              "
+              :src="product.save.data.thumbnail.url"
+              alt=""
+              class="bg-surface-light rounded"
+              style="width: 100%; max-height: 300px; object-fit: contain"
+            />
+            <v-text-field
+              v-if="product.save.data.thumbnail"
+              label="Valor"
+              v-model="product.save.data.thumbnail.name"
+            />
+            <!-- <pre>{{ product.save.data.thumbnail || false }}</pre> -->
           </v-card-text>
           <v-card-actions>
             <v-btn

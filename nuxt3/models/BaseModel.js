@@ -9,7 +9,7 @@ export default class {
     this.save = new Save(this);
     this.search = new Search(this);
     this.delete = new Delete(this);
-    this.upload = new Upload(this);
+    this.storage = new Storage(this);
     this.events = [];
   }
 
@@ -164,11 +164,45 @@ class Delete {
   }
 }
 
-class Upload {
+class Storage {
   constructor(parent) {
     this.busy = false;
     this.collection = () => parent.collection();
     this.on = (...args) => parent.on(...args);
     this.dispatch = (...args) => parent.dispatch(...args);
   }
+
+  async storeUploadData(snapshotRef) {
+    const metadata = await fireStorage.getMetadata(snapshotRef);
+    return {
+      url: await fireStorage.getDownloadURL(snapshotRef),
+      name: metadata.name,
+      mime: metadata.contentType,
+      size: metadata.size,
+    };
+  }
+
+  browse() {
+    Object.assign(document.createElement("input"), {
+      type: "file",
+      onchange: (ev) => {
+        if (!ev.target.files[0]) return;
+        this.upload(ev.target.files[0]);
+      },
+    }).click();
+  }
+
+  async upload(file) {
+    this.busy = true;
+    const storage = fireStorage.getStorage();
+    const snapshot = await fireStorage.uploadBytes(
+      fireStorage.ref(storage, file.name),
+      file
+    );
+    const data = await this.storeUploadData(snapshot.ref);
+    this.busy = false;
+    return data;
+  }
+
+  remove(data) {}
 }

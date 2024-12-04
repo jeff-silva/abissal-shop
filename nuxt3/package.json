@@ -23,6 +23,7 @@
     "axios": "^1.7.8",
     "dayjs": "^1.11.13",
     "firebase": "^11.0.2",
+    "maska": "^3.0.4",
     "sass": "^1.81.0",
     "vite-plugin-vuetify": "^2.0.4",
     "vuefire": "^3.2.0",
