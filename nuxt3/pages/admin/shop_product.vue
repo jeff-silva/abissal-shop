@@ -129,6 +129,9 @@
               label="Valor"
               v-model.number="product.save.data.amount"
             />
+            <app-dimona-select-slug
+              v-model.number="product.save.data.dimona_slug"
+            />
             <v-file-input
               v-if="!product.save.data.thumbnail"
               label="Thumbnail"
