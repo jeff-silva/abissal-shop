@@ -118,46 +118,26 @@
             <v-text-field
               label="SKU"
               v-model="product.save.data.sku"
-            />
-            <v-checkbox
-              :label="product.save.data.active ? 'Ativo' : 'Inativo'"
-              v-model="product.save.data.active"
-              :true-value="true"
-              :false-value="null"
-            />
+            >
+              <template #append>
+                <v-checkbox
+                  :label="product.save.data.active ? 'Ativo' : 'Inativo'"
+                  v-model="product.save.data.active"
+                  :true-value="true"
+                  :false-value="null"
+                  hide-details
+                />
+              </template>
+            </v-text-field>
+
             <v-money
               label="Valor"
-              v-model.number="product.save.data.amount"
+              v-model="product.save.data.amount"
             />
-            <app-dimona-select-slug
-              v-model.number="product.save.data.dimona_slug"
-            />
-            <v-file-input
-              v-if="!product.save.data.thumbnail"
-              label="Thumbnail"
-              :loading="product.storage.busy"
-              @update:model-value="
-                async (file) => {
-                  product.save.data.thumbnail = await product.storage.upload(
-                    file
-                  );
-                }
-              "
-            />
-            <img
-              v-if="
-                product.save.data.thumbnail &&
-                product.save.data.thumbnail.mime.startsWith('image/')
-              "
-              :src="product.save.data.thumbnail.url"
-              alt=""
-              class="bg-surface-light rounded"
-              style="width: 100%; max-height: 300px; object-fit: contain"
-            />
-            <v-text-field
-              v-if="product.save.data.thumbnail"
-              label="Valor"
-              v-model="product.save.data.thumbnail.name"
+            <app-dimona-select-slug v-model="product.save.data.dimona_slug" />
+            <app-upload
+              v-model="product.save.data.thumbnail"
+              :model="product"
             />
             <!-- <pre>{{ product.save.data.thumbnail || false }}</pre> -->
           </v-card-text>
