@@ -10,11 +10,14 @@
       </a>
     </div> -->
 
-    <a href="">
+    <a
+      href=""
+      v-if="props.product.thumbnail"
+    >
       <img
         style="height: 300px"
         class="w-full object-cover"
-        :src="props.product.cover"
+        :src="props.product.thumbnail.url"
         alt=""
       />
     </a>
@@ -257,5 +260,5 @@ const props = defineProps({
   product: { type: Object, default: () => ({}) },
 });
 
-import * as f from "@/helpers/format.js";
+import f from "@/helpers/format.js";
 </script>

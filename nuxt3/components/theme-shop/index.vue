@@ -106,7 +106,7 @@
     <section class="bg-gray-800 py-8 antialiased">
       <div class="max-w-screen-xl mx-auto">
         <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          <template v-for="o in product.items">
+          <template v-for="o in product.search.data">
             <theme-shop-product-card :product="o" />
           </template>
         </div>
@@ -624,12 +624,16 @@
 </template>
 
 <script setup>
-import { productItems, productTags } from "@/data/products.js";
+import ShopProduct from "~/models/ShopProduct.js";
+const product = reactive(new ShopProduct());
+product.search.submit();
 
-const product = reactive({
-  tags: productTags,
-  items: productItems,
-});
+// import { productItems, productTags } from "@/data/products.js";
+
+// const product = reactive({
+//   tags: productTags,
+//   items: productItems,
+// });
 
 const nav = reactive({
   submenu: null,
@@ -798,8 +802,6 @@ const nav = reactive({
     },
   ],
 });
-
-nav.setSubmenu(nav.items[0]);
 </script>
 
 <style>

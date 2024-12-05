@@ -33,6 +33,13 @@
       "
     />
 
+    <v-text-field
+      v-if="props.modelValue"
+      v-model="props.modelValue.url"
+      label="URL"
+      hide-details="auto"
+    />
+
     <v-expand-transition>
       <img
         v-if="props.modelValue && props.modelValue.mime.startsWith('image/')"
@@ -40,14 +47,36 @@
         alt=""
         class="bg-surface-light rounded"
         style="width: 100%; max-height: 300px; object-fit: contain"
+        @drag="console.log('drag', $event.dataTransfer.getData('text/html'))"
+        @drop="console.log('drop', $event.dataTransfer.getData('text/html'))"
+        @dragend="
+          console.log('dragend', $event.dataTransfer.getData('text/html'))
+        "
+        @dragover="
+          console.log('dragover', $event.dataTransfer.getData('text/html'))
+        "
+        @dragexit="
+          console.log('dragexit', $event.dataTransfer.getData('text/html'))
+        "
+        @dragleave="
+          console.log('dragleave', $event.dataTransfer.getData('text/html'))
+        "
+        @dragstart="
+          console.log('dragstart', $event.dataTransfer.getData('text/html'))
+        "
+        @dragenter="
+          console.log('dragenter', $event.dataTransfer.getData('text/html'))
+        "
       />
     </v-expand-transition>
 
-    <!-- <pre>{{ props }}</pre> -->
+    <!-- <pre>{{ props.modelValue }}</pre> -->
   </div>
 </template>
 
 <script setup>
+const _document = document;
+
 const props = defineProps({
   modelValue: { type: [Object], default: null },
   model: { type: [Object], default: null },

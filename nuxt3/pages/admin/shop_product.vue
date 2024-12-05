@@ -105,6 +105,7 @@
     <v-dialog
       v-model="productDialog.value"
       max-width="700"
+      max-height="95vh"
       scrollable
     >
       <v-form @submit.prevent="product.save.submit()">
@@ -114,6 +115,11 @@
             <v-text-field
               label="Nome"
               v-model="product.save.data.name"
+              @update:model-value="
+                (value) => {
+                  product.save.data.sku = format.slug(value);
+                }
+              "
             />
             <v-text-field
               label="SKU"
@@ -156,6 +162,8 @@
 </template>
 
 <script setup>
+import format from "@/helpers/format.js";
+
 import ShopProduct from "~/models/ShopProduct.js";
 const product = reactive(new ShopProduct());
 product.search.submit();
