@@ -1,0 +1,1 @@
+import{_ as n}from"./BR6Qh4uT.js";import{_ as e,m as a,o as _,w as r,a as s}from"./B1xS6FGY.js";const c={};function m(d,o){const t=n;return _(),a(t,{name:"admin"},{default:r(()=>o[0]||(o[0]=[s("div",null,"Dashboard",-1)])),_:1})}const u=e(c,[["render",m]]);export{u as default};
