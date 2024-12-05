@@ -39,7 +39,7 @@
               {{ dimonaItem.name }}
             </div>
             <div class="text-center text-success font-weight-bold">
-              Valor: {{ dimonaItem.price }}
+              Valor: {{ format.currency(dimonaItem.price) }}
             </div>
             <div class="text-center">
               <v-btn
@@ -57,6 +57,8 @@
 </template>
 
 <script setup>
+import format from "@/helpers/format.js";
+
 const props = defineProps({
   modelValue: { type: [Number, String], default: null },
 });

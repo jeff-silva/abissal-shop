@@ -1,4 +1,4 @@
-export const currency = (value, currency = "BRL", language = null) => {
+const currency = (value, currency = "BRL", language = null) => {
   language = language === null ? navigator.language : language;
   return new Intl.NumberFormat(language, {
     style: "currency",
@@ -9,3 +9,5 @@ export const currency = (value, currency = "BRL", language = null) => {
     .replace(/\./g, ",")
     .replace(/\-/g, ".");
 };
+
+export default { currency };
